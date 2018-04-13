@@ -96,7 +96,7 @@ void cred_push() {
 
 	//=== send CoAP message
 	// metadata
-	pkt->l4_destination_port = 7654;
+	pkt->l4_destination_port = 7777;
 	pkt->l3_destinationAdd.type = ADDR_128B;
 	memcpy(&pkt->l3_destinationAdd.addr_128b[0],&ipAddr_Server,16);
 
