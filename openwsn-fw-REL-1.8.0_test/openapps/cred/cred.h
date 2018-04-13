@@ -11,5 +11,6 @@ typedef struct {
 //====================prototypes======================
 
 void cred_init(void);
+void cred_push(void);
 
 #endif
