@@ -1,6 +1,7 @@
 # TCP Client
 
 require 'socket'
+require 'coap'
 
 socket = TCPSocket.open("localhost", 80) # virtual hosting하여 port변경하기
 
