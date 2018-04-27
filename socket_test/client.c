@@ -29,8 +29,8 @@ int main(int argc, char **argv)
 
     client_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     clientaddr.sin_family = AF_INET;
-    // clientaddr.sin_addr.s_addr = inet_addr("13.209.8.64");
-    clientaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    clientaddr.sin_addr.s_addr = inet_addr("13.209.8.64");
+    // clientaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
     clientaddr.sin_port = htons(atoi(argv[1]));
 
     client_len = sizeof(clientaddr);
@@ -47,11 +47,11 @@ int main(int argc, char **argv)
 
         buf_in[strlen(buf_in) - 1] = '\0';
         /* for C server */
-        write(client_sockfd, buf_in, 255);
+        // write(client_sockfd, buf_in, 255);
 
         /* for node server */
-        // send_len = strlen(buf_in);
-        // write(client_sockfd, buf_in, send_len);
+        send_len = strlen(buf_in);
+        write(client_sockfd, buf_in, send_len);
 
         if (strncmp(buf_in, "quit", 4) == 0)
         {
