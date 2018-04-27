@@ -5,6 +5,11 @@
 #include "openqueue.h"
 #include "leds.h"
 
+#include "idmanager.h"
+#include "IEEE802154E.h"
+
+static const uint8_t ipAddr_Server[] = {13, 209, 8, 64};
+
 cred_vars_t cred_vars;
 const uint8_t cred_path0[] = "red";
 
@@ -23,6 +28,13 @@ void cred_init() {
 	cred_vars.desc.componentID	= COMPONENT_CRED;
 	cred_vars.desc.callbackRx	= &cred_receive;
 	cred_vars.desc.callbackSendDone = &cred_sendDone;
+	
+	cred_vars.timerId = opentimers_start(
+		3000,
+		TIMER_PERIODIC,
+		TIME_MS,
+		cred_push
+	);
 
 	// register with the CoAP module
 	opencoap_register(&cred_vars.desc);
