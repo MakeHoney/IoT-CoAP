@@ -22,8 +22,7 @@ int main(int argc, char **argv)
 
     if (argc != 2)
     {
-        printf("Usage : ./zipcode_cl [port]\n");
-        printf("예    : ./zipcode_cl 4444\n");
+        perror("argument error : ");
         exit(0);
     }
 
@@ -45,7 +44,7 @@ int main(int argc, char **argv)
         printf("지역이름 입력 : ");
         fgets(buf_in, 255,stdin);
 
-        buf_in[strlen(buf_in) - 1] = '0';
+        buf_in[strlen(buf_in) - 1] = '\0';
         write(client_sockfd, buf_in, 255);
         if (strncmp(buf_in, "quit", 4) == 0)
         {
@@ -55,6 +54,7 @@ int main(int argc, char **argv)
         while(1)
         {
             read(client_sockfd, buf_get, 255);
+            printf("test client_sock : %s", buf_get);
             if (strncmp(buf_get, "end", 3) == 0)
                 break;
 

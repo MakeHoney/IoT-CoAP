@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 
 	char buf[255];
 	char line[255];
-	
+
 	if(argc != 2) {
 		printf("argument error");
 		exit(0);
@@ -76,6 +76,7 @@ int main(int argc, char** argv) {
 				close(client_sockfd);
 				break;
 			}
+			printf("클라이언트 입력내용 : %s\n", buf);
 
 			/* 클라이언트가 입력한 내용이 quit이면 break */
 			if(strncmp(buf, "quit", 4) == 0) {
