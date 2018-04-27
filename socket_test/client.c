@@ -1,4 +1,4 @@
-#include <sys/types.h>
+#incluXde <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 
     client_sockfd = socket(AF_INET, SOCK_STREAM, 0);
     clientaddr.sin_family = AF_INET;
-    clientaddr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    clientaddr.sin_addr.s_addr = inet_addr("13.209.8.64");
     clientaddr.sin_port = htons(atoi(argv[1]));
 
     client_len = sizeof(clientaddr);
@@ -54,7 +54,6 @@ int main(int argc, char **argv)
         while(1)
         {
             read(client_sockfd, buf_get, 255);
-            printf("test client_sock : %s", buf_get);
             if (strncmp(buf_get, "end", 3) == 0)
                 break;
 
