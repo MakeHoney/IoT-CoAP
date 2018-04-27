@@ -1,4 +1,4 @@
-#incluXde <sys/types.h>
+#include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -10,11 +10,11 @@
 
 int main(int argc, char **argv)
 {
+    int send_len;
 
     int client_len;
     int client_sockfd;
 
-    FILE *fp_in;
     char buf_in[255];
     char buf_get[255];
 
@@ -41,24 +41,20 @@ int main(int argc, char **argv)
     }
     while(1)
     {
-        printf("지역이름 입력 : ");
-        fgets(buf_in, 255,stdin);
+        printf("입력 : ");
+        fgets(buf_in, 255, stdin);
 
         buf_in[strlen(buf_in) - 1] = '\0';
-        write(client_sockfd, buf_in, 255);
+        send_len = strlen(buf_in);
+        write(client_sockfd, buf_in, send_len);
         if (strncmp(buf_in, "quit", 4) == 0)
         {
             close(client_sockfd);
             exit(0);
         }
-        while(1)
-        {
-            read(client_sockfd, buf_get, 255);
-            if (strncmp(buf_get, "end", 3) == 0)
-                break;
 
-            printf("%s", buf_get);
-        }
+        read(client_sockfd, buf_get, 255);
+        printf("%s", buf_get);
     }
 
     close(client_sockfd);
