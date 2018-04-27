@@ -19,6 +19,6 @@ var server = net.createServer(function(socket) {
 	});
 });
 
-server.listen(port, function() {
-	console.log('server listening...');
+server.listen(port, '::', function() {
+    console.log('listener');
 });
