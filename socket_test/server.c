@@ -18,7 +18,7 @@ int main(int argc, char** argv) {
 
 	char buf[255];
 	char line[255];
-
+	
 	if(argc != 2) {
 		printf("argument error");
 		exit(0);
@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
 			perror("Accept error : ");
 			exit(0);
 		}
+		// printf("test");
 
 		/* 출력문 넣어서 이 위치에서 하는 오퍼레이션 확인 */
 		while(1) {
