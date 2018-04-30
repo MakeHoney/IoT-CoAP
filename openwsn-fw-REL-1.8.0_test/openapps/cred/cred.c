@@ -8,16 +8,35 @@
 #include "idmanager.h"
 #include "IEEE802154E.h"
 
-static const uint8_t ipAddr_Server[] = {13, 209, 8, 64};
+static const uint8_t ipAddr_Server[] = {0xaa, 0xaa, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, \
+									0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02};
 
 cred_vars_t cred_vars;
 const uint8_t cred_path0[] = "red";
+const uint8_t bCntPrint[] = "binary counter";
+const uint8_t* bCnt[] = {"000", "001", "010", "011",
+						"100", "101", "110", "111"};
 
 owerror_t cred_receive(OpenQueueEntry_t* msg,
 	coap_header_iht* coap_header,
 	coap_option_iht* coap_options);
 void cred_sendDone(OpenQueueEntry_t* msg,
 	owerror_t error);
+
+int lengthOfPrint(uint8_t* print) {
+	int cnt = 0;
+	while(print[cnt] != '\0') cnt++;
+	return cnt;
+}
+
+void binaryCounter(uint8_t i) {
+	if(bCnt[i][0] == '1') leds_error_on();
+	else	leds_error_off();
+	if(bCnt[i][1] == '1') leds_radio_on();
+	else	leds_radio_off();
+	if(bCnt[i][2] == '1') leds_sync_on();
+	else	leds_sync_off();
+}
 
 void cred_init() {
 	// prepare the resource descriptor for the /.well-known/core path
@@ -29,13 +48,6 @@ void cred_init() {
 	cred_vars.desc.callbackRx	= &cred_receive;
 	cred_vars.desc.callbackSendDone = &cred_sendDone;
 
-	cred_vars.timerId = opentimers_start(
-		3000,
-		TIMER_PERIODIC,
-		TIME_MS,
-		cred_push
-	);
-
 	// register with the CoAP module
 	opencoap_register(&cred_vars.desc);
 }
@@ -44,7 +56,7 @@ void cred_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
 	openqueue_freePacketBuffer(msg);
 }
 
-void cred_push() {
+void cred_push(uint8_t action) {
 	OpenQueueEntry_t* pkt;
 	owerror_t outcome;
 	uint8_t numOptions;
@@ -80,8 +92,16 @@ void cred_push() {
 
 	// CoAP payload
 	numOptions = 0;
-	packetfunctions_reserveHeaderSize(pkt,1);
-	pkt->payload[0] = leds_error_isOn();
+	if(action == '1') {
+		int len = lengthOfPrint(bCntPrint);
+		packetfunctions_reserveHeaderSize(pkt,len);
+		memcpy(pkt->payload, bCntPrint, len);
+	} else {
+		packetfunctions_reserveHeaderSize(pkt,3);
+		pkt->payload[0] = 'o';
+		pkt->payload[1] = 'f';
+		pkt->payload[2] = 'f';
+	}
 
 	// payload marker
 	packetfunctions_reserveHeaderSize(pkt,1);
@@ -178,6 +198,38 @@ owerror_t cred_receive(OpenQueueEntry_t* msg,
 
 		outcome = E_SUCCESS;
 		break;
+
+	case COAP_CODE_REQ_PUT:
+		// change the owner's state
+		if (msg->payload[0] == '1') {
+			int i = 0;
+			volatile int delay;
+			leds_all_off();
+
+			for(i = 0 ; i < 8 ; i++){
+				binaryCounter(i);
+				for (delay=1000000;delay>0;delay--);
+			}
+			cred_push('1');
+		}
+		else if (msg->payload[0] == '2') {
+			leds_error_off();
+			cred_push('2');
+		}
+		else {
+			leds_error_toggle();
+		}
+
+		// reset packet payload
+		msg->payload = &(msg->packet[127]);
+		msg->length = 0;
+
+		// set the CoAPheader
+		coap_header->Code = COAP_CODE_RESP_CHANGED;
+
+		outcome = E_SUCCESS;
+		break;
+
 	default:
 		outcome = E_FAIL;
 		break;
