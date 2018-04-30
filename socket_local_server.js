@@ -2,11 +2,17 @@ const PORT = 7777;
 const COAPPORT = 8888;
 const CRAWLERPORT = 9999;
 
-var dgram = require('dgram');
+var dgram	= require('dgram'),
+	packet	= require('coap-packet'),
+	parse	= packet.parse,
+	generate = packet.generate,
+	payload	= new Buffer('Hello World'),
+	message	= generate({ payload: payload });
 
 var controller = dgram.createSocket("udp6");
 
 controller.on("message", function(msg, rinfo) {
+	msg = parse(msg).payload.toString();
 	console.log("controller got : " + msg + " from " + rinfo.address + ":" + rinfo.port);
 
 	if(rinfo.port == CRAWLERPORT) {
