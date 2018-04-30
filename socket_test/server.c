@@ -13,8 +13,9 @@
 int main() {
 	int s;
 
-	struct sockaddr_in6 clientaddr, serveraddr;
-	int client_len = sizeof(clientaddr);
+	struct sockaddr_in6 routerAddr, localAddr;
+	struct sockaddr_in serverAddr;
+	int routerLen = sizeof(routerAddr);
 
 	char buf[255];
 
@@ -24,13 +25,19 @@ int main() {
 		exit(0);
 	}
 
-	memset(&serveraddr, 0x00, sizeof(serveraddr));
-	serveraddr.sin6_family = AF_INET6;
-	serveraddr.sin6_addr = in6addr_any;
-	serveraddr.sin6_port = htons(PORT);
+	memset(&localAddr, 0x00, sizeof(localAddr));
+	localAddr.sin6_family = AF_INET6;
+	localAddr.sin6_addr = in6addr_any;
+	localAddr.sin6_port = htons(PORT);
+
+	memset(&serverAddr, 0x00, sizeof(serverAddr));
+	serverAddr.sin_family = AF_INET;
+	serverAddr.sin_addr.s_addr = inet_addr("13.209.8.64");
+	serverAddr.sin_port = htons(PORT);
+
 
 	// 바인딩 (소켓에 이름 연결)
-	if(bind(s, (struct sockaddr*)&serveraddr, sizeof(serveraddr)) == -1) {
+	if(bind(s, (struct sockaddr*)&localAddr, sizeof(localAddr)) == -1) {
 		perror("bind error : "); 
 		exit(0);
 	}
@@ -40,8 +47,11 @@ int main() {
 		memset(buf, '\0', 255);
 
 		/* 클라이언트가 입력한 내용을 버퍼에 담는다 read는 fd에서 읽어들인 바이트수를 반환 */
-		recvfrom(s, buf, 255, 0, (struct sockaddr*)&clientaddr, &client_len);
+		recvfrom(s, buf, 255, 0, (struct sockaddr*)&routerAddr, &routerLen);
 		printf("Data: %s\n", buf);
+
+		sendto(s, buf, strlen(buf) + 1, 0, (struct sockaddr*)&serverAddr, sizeof(serverAddr));
+
 	}
 	printf("a client disconnected\n");
 	close(s);
