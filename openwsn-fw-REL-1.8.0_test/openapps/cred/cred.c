@@ -48,12 +48,13 @@ void cred_init() {
 	cred_vars.desc.callbackRx	= &cred_receive;
 	cred_vars.desc.callbackSendDone = &cred_sendDone;
 
-	cred_vars.timerId = opentimers_start(
-		3000,
-		TIMER_PERIODIC,
-		TIME_MS,
-		cred_push
-		);
+	// cred_vars.timerId = opentimers_start(
+	// 	3000,
+	// 	TIMER_PERIODIC,
+	// 	TIME_MS,
+	// 	cred_push
+	// 	);
+	
 	// register with the CoAP module
 	opencoap_register(&cred_vars.desc);
 }

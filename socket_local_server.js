@@ -6,7 +6,7 @@ var dgram	= require('dgram'),
 	packet	= require('coap-packet'),
 	parse	= packet.parse,
 	generate = packet.generate,
-	payload	= new Buffer('Hello World'),
+	payload	= new Buffer(''),
 	message	= generate({ payload: payload });
 
 var controller = dgram.createSocket("udp6");
