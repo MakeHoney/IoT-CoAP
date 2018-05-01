@@ -4,7 +4,7 @@ const CRAWLERPORT = 9999;
 
 var dgram = require('dgram');
 
-var controller = dgram.createSocket("udp4");
+var controller = dgram.createSocket("udp6");
 
 controller.on("message", function(msg, rinfo) {
 	console.log("controller got : " + msg + " from " + rinfo.address + ":" + rinfo.port);
@@ -15,7 +15,7 @@ controller.on("message", function(msg, rinfo) {
 		});
 
 	} else {
-		controller.send(msg, 0, msg.length, PORT, "13.209.8.64", function(err, bytes) {
+		controller.send(msg, 0, msg.length, PORT, "::ffff:13.209.8.64", function(err, bytes) {
 			console.log("controller sent a message(" + msg + ") to main server");
 		});
 	}

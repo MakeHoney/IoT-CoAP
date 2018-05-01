@@ -2,7 +2,7 @@ const PORT = 7777;
 
 var dgram = require('dgram');
 
-var server = dgram.createSocket("udp4");
+var server = dgram.createSocket("udp6");
 
 server.on("message", function(msg, rinfo) {
 	console.log("server got : " + msg + " from " +
