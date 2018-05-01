@@ -1,4 +1,4 @@
 Rails.application.routes.draw do
-  	get '/keyboard' => 'spiders#keyboard'
-	post '/message' => 'spiders#chat'
+  	get '/keyboard' => 'datas#keyboard'
+	post '/message' => 'datas#chat'
 end
