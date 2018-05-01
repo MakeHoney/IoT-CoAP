@@ -8,16 +8,16 @@ class DatasController < ApplicationController
 	end
 
 	def chat
-		fd = File.new('../../../log.txt', 'r');
-		fs = fd.stat.size
-		if fd
+		if File.exist?('../../../log.txt')
+			fd = File.new('../../../log.txt', 'r');
+			fs = fd.stat.size
 			content = fd.sysread(fs)
 		else
-			content = '로그가 없습니다.'
+			content = '작성된 로그가 없습니다.'
 		end
 
-		@res = params[:content]
-		@user_key = params[:user_key]
+		# @res = params[:content]
+		# @user_key = params[:user_key]
 		@msg = {
 			message: {
 				text: content
@@ -28,7 +28,6 @@ class DatasController < ApplicationController
 			}
 		}
 		render json: @msg, status: :ok
-
 	end
 
 end
