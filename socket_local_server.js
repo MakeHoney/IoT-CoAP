@@ -1,21 +1,30 @@
 const PORT = 7777;
+const COAPPORT = 8888;
+const CRAWLERPORT = 9999;
 
 var dgram = require('dgram');
 
-var localServer = dgram.createSocket("udp4");
+var controller = dgram.createSocket("udp4");
 
-localServer.on("message", function(msg, rinfo) {
-	console.log("localServer got : " + msg + " from " + rinfo.address + ":" + rinfo.port);
+controller.on("message", function(msg, rinfo) {
+	console.log("controller got : " + msg + " from " + rinfo.address + ":" + rinfo.port);
 
-	localServer.send(msg, 0, msg.length, 7777, "13.209.8.64", function(err, bytes) {
-		console.log("localServer sent message(" + msg + ") to main server");
-	});
+	if(rinfo.port == CRAWLERPORT) {
+		controller.send(msg, 0, msg.length, COAPPORT, "localhost", function(err, bytes) {
+			console.log("controller sent a crawled message(" + msg + ") to node_coap server")
+		});
+
+	} else {
+		controller.send(msg, 0, msg.length, PORT, "13.209.8.64", function(err, bytes) {
+			console.log("controller sent a message(" + msg + ") to main server");
+		});
+	}
 });
 
-localServer.on("listening", function() {
-	var address = localServer.address();
-	console.log("localServer listening " + address.address + 
+controller.on("listening", function() {
+	var address = controller.address();
+	console.log("controller listening " + address.address + 
 		":" + address.port);
 });
 
-localServer.bind(PORT);
+controller.bind(PORT);
