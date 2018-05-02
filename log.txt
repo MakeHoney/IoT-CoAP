@@ -4,3 +4,5 @@ off
 binary counter
 binary counter
 off
+off
+binary counter
