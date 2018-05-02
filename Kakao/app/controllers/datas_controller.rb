@@ -8,13 +8,15 @@ class DatasController < ApplicationController
 	end
 
 	def chat
-		if File.exist?('../../../log.txt')
-			fd = File.new('../../../log.txt', 'r');
+		if File.exist?('/home/ec2-user/iot_coap/log.txt')
+			fd = File.new('/home/ec2-user/iot_coap/log.txt', 'r');
 			fs = fd.stat.size
 			content = fd.sysread(fs)
 		else
 			content = '작성된 로그가 없습니다.'
 		end
+
+		content.chomp!
 
 		# @res = params[:content]
 		# @user_key = params[:user_key]
