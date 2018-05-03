@@ -4,6 +4,7 @@
 #include "packetfunctions.h"
 #include "openqueue.h"
 #include "leds.h"
+#include "button.h"
 
 #include "idmanager.h"
 #include "IEEE802154E.h"
@@ -13,15 +14,17 @@ static const uint8_t ipAddr_Server[] = {0xaa, 0xaa, 0x00, 0x00, 0x00, 0x00, 0x00
 
 cred_vars_t cred_vars;
 const uint8_t cred_path0[] = "red";
-/* 병헌 */
+/* byunghun */
 uint8_t bCntPrint[] = "binary counter";
 uint8_t* bCnt[] = {"000", "001", "010", "011",
 					"100", "101", "110", "111"};
-/* 정연 */
-uint8_t ott_Print[] = "1 2 3 blink";
+uint8_t* ott[] ={"100", "000","110","000","111","000"};
+uint8_t* ott2[] ={"100", "110","111","011","001","000"};
+/* jungyeon */
+uint8_t ottPrint[] = "1 2 3 blink";
 
-/* 태성 */
-uint8_t wave_Print[] = "wave 5 blink";
+/* taesung */
+uint8_t wavePrint[] = "wave 5 blink";
 
 
 owerror_t cred_receive(OpenQueueEntry_t* msg,
@@ -45,6 +48,29 @@ void binaryCounter(uint8_t i) {
 	else	leds_sync_off();
 }
 
+void foo(uint8_t i) {
+	if (ott[i][0] == '1') leds_error_on();
+	else	leds_error_off();
+	if (ott[i][1] == '1') leds_radio_on();
+	else	leds_radio_off();
+	if (ott[i][2] == '1') leds_sync_on();
+	else	leds_sync_off();
+}
+
+void wave(uint8_t i) {
+	if (ott2[i][0] == '1') leds_error_on();
+	else	leds_error_off();
+	if (ott2[i][1] == '1') leds_radio_on();
+	else	leds_radio_off();
+	if (ott2[i][2] == '1') leds_sync_on();
+	else	leds_sync_off();
+}
+
+
+void cb_btn() {
+	leds_error_toggle();
+}
+
 
 void cred_init() {
 	// prepare the resource descriptor for the /.well-known/core path
@@ -65,11 +91,13 @@ void cred_init() {
 	
 	// register with the CoAP module
 	opencoap_register(&cred_vars.desc);
+	btn_setCallbacks(cb_btn);
 }
 
 void cred_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
 	openqueue_freePacketBuffer(msg);
 }
+
 
 void cred_push(uint8_t action) {
 	OpenQueueEntry_t* pkt;
@@ -108,17 +136,17 @@ void cred_push(uint8_t action) {
 	// CoAP payload
 	numOptions = 0;
 	if(action == '1') {
-		int len = lengthOfPrint(ott_Print);
+		int len = lengthOfPrint(ottPrint);
 		packetfunctions_reserveHeaderSize(pkt, len);
-		memcpy(pkt->payload, ott_Print, len);
+		memcpy(pkt->payload, ottPrint, len);
 	} else if (action == '2') {
 		int len = lengthOfPrint(bCntPrint);
 		packetfunctions_reserveHeaderSize(pkt, len);
 		memcpy(pkt->payload, bCntPrint, len);
 	} else if (action == '3') {
-		int len = lengthOfPrint(wave_Print);
+		int len = lengthOfPrint(wavePrint);
 		packetfunctions_reserveHeaderSize(pkt, len);
-		memcpy(pkt->payload, wave_Print, len);
+		memcpy(pkt->payload, wavePrint, len);
 	} else {
 		packetfunctions_reserveHeaderSize(pkt,3);
 		pkt->payload[0] = 'o';
@@ -227,31 +255,36 @@ owerror_t cred_receive(OpenQueueEntry_t* msg,
 		if (msg->payload[0] == '1') {
 			int i = 0, j = 0;
 			volatile int delay;
-			leds_all_off();
 
-			// blink error led once
-			leds_error_on();
-			for (delay = 0xffffff; delay > 0; delay--);
-			leds_error_off();
-			for (delay = 0xffffff; delay > 0; delay--);
-
-			// blink error and radio led twice
-			for (i = 0; i < 2; i++) {
-				leds_error_on();
-				leds_radio_on();
-				for (delay = 0xffff; delay > 0; delay--);
-				leds_error_off();
-				leds_radio_off();
-				for (delay = 0xffff; delay > 0; delay--);
-			}
-
-			// blink all led three times
-			for (j = 0; j < 3; j++) {
-				leds_all_on();
-				for (delay = 0xffffff; delay > 0; delay--);
+			for (i = 0; i < 6; i++) {
 				leds_all_off();
-				for (delay = 0xffffff; delay > 0; delay--);
+				foo(i);
+				for (j = 0; j < 4; j++)
+					for (delay = 1000000; delay > 0; delay--);
 			}
+			// leds_all_off();
+
+			// // blink error led once
+			// leds_error_on();
+			// for (j = 0; j < 4; j++)
+			// 		for (delay = 1000000; delay > 0; delay--);
+			// leds_error_off();
+			// for (j = 0; j < 4; j++)
+			// 		for (delay = 1000000; delay > 0; delay--);
+
+			// // blink error and radio led twice
+			// for (i = 0; i < 2; i++) {
+			// 	leds_error_on();
+			// 	leds_radio_on();
+			// 	for (j = 0; j < 4; j++)
+			// 		for (delay = 1000000; delay > 0; delay--);
+			// 	leds_error_off();
+			// 	leds_radio_off();
+			// 	for (j = 0; j < 4; j++)
+			// 		for (delay = 1000000; delay > 0; delay--);
+			// }
+
+		
 			cred_push('1');
 
 		} else if (msg->payload[0] == '2') {
@@ -268,24 +301,31 @@ owerror_t cred_receive(OpenQueueEntry_t* msg,
 			cred_push('2');
 
 		} else if (msg->payload[0] == '3') {
-			int i = 0;
+			int i = 0, j = 0;
 			volatile int delay;
 
 			leds_all_off();
-			for (i = 0; i < 5; i++) {
-				leds_error_on();		for (delay = 0xffff; delay > 0; delay--);
-				leds_radio_on();		for (delay = 0xffff; delay > 0; delay--);
-				leds_sync_on();			for (delay = 0xffff; delay > 0; delay--);
-				leds_error_off();		for (delay = 0xffff; delay > 0; delay--);
-				leds_radio_off();		for (delay = 0xffff; delay > 0; delay--);
-				leds_sync_off();		for (delay = 0xffff; delay > 0; delay--);
-				leds_sync_on();			for (delay = 0xffff; delay > 0; delay--);
-				leds_radio_on();		for (delay = 0xffff; delay > 0; delay--);
-				leds_error_on();		for (delay = 0xffff; delay > 0; delay--);
-				leds_sync_off();		for (delay = 0xffff; delay > 0; delay--);
-				leds_radio_off();		for (delay = 0xffff; delay > 0; delay--);
-				leds_error_off();		for (delay = 0xffff; delay > 0; delay--);
+
+			for (i = 0; i < 6; i++) {
+				leds_all_off();
+				wave(i);
+				for (j = 0; j < 4; j++)
+					for (delay = 1000000; delay > 0; delay--);
 			}
+			// for (i = 0; i < 5; i++) {
+			// 	leds_error_on();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_radio_on();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_sync_on();			for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_error_off();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_radio_off();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_sync_off();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_sync_on();			for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_radio_on();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_error_on();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_sync_off();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_radio_off();		for (delay = 0xffff; delay > 0; delay--);
+			// 	leds_error_off();		for (delay = 0xffff; delay > 0; delay--);
+			// }
 
 			cred_push('3');
 		}
