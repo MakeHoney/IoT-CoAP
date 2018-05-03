@@ -20,12 +20,12 @@ server.on("message", function(msg, rinfo) {
 		fs.writeFile('byunghun.txt', byunghun.toString(), 'utf8', function(err) {
 			if(err) throw err;
 		})
-	} else(msg.equals('1 2 3 blink')) {
+	} else if(msg.equals('1 2 3 blink')) {
 		jungyeon++;
 		fs.writeFile('jungyeon.txt', jungyeon.toString(), 'utf8', function(err) {
 			if(err) throw err;
 		})
-	} else(msg.equals('wave 5 blink')) {
+	} else if(msg.equals('wave 5 blink')) {
 		taesung++;
 		fs.writeFile('taesung.txt', taesung.toString(), 'utf8', function(err) {
 			if(err) throw err;

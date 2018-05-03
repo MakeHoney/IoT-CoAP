@@ -102,7 +102,7 @@ class DatasController < ApplicationController
 				},
 				keyboard: {
 					type: "buttons",
-					buttons: ["요청 로그 확인"]
+					buttons: ["요청 로그 확인", "병헌", "정연", "태성"]
 				}
 			}
 			render json: @msg, status: :ok
