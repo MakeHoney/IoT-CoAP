@@ -1,5 +1,7 @@
 const PORT = 7777;
 
+var request = require('request');
+
 var dgram	= require('dgram'),
 	packet	= require('coap-packet'),
 	parse	= packet.parse,
@@ -8,35 +10,42 @@ var dgram	= require('dgram'),
 	message	= generate({ payload: payload });
 
 var controller = dgram.createSocket("udp6");
+
+var url = 'http://localhost:8545/';
+
+var postData = {
+	jsonrpc: '2.0',
+	method: 'eth_accounts',
+	params: [],
+	id: 1
+}
+
 var options = {
-	uri: "localhost:8545",
-	method: "POST",
-	json: {
-		jsonrpc: "2.0",
-		method: "eth_accounts",
-		params: "[]",
-		id: 1
-	}
-};
+  url: url,
+  method: 'POST',
+  headers: {
+		"Content-Type": "application/json"
+	},
+  body: postData,
+  json: true
+}
+
 
 controller.on("message", function(msg, rinfo) {
 	msg = parse(msg).payload.toString();
 	console.log("controller got : " + msg + " from " + rinfo.address + ":" + rinfo.port);
 
-	var req = http.request(options, function(res) {
-		console.log('STATUS: ' + res.statusCode);
-		console.log('HEADERS: ' + JSON.stringify(res.headers));
-		res.setEncoding('utf8');
-		res.on('data', function (chunk) {
-		console.log('BODY: ' + chunk);
-	  });
+	request(options, function (err, res, body) {
+		if (err) {
+			console.error('error posting json: ', err)
+			throw err
+		}
+		var headers = res.headers
+		var statusCode = res.statusCode
+		console.log('headers: ', headers)
+		console.log('statusCode: ', statusCode)
+		console.log('result: ', body)
 	})
-
-	req.end();
-
-	// controller.send(msg, 0, msg.length, PORT, "::ffff:13.209.8.64", function(err, bytes) {
-	// 	console.log("controller sent a message(" + msg + ") to main server");
-	// });
 });
 
 controller.on("listening", function() {
