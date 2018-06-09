@@ -22,6 +22,7 @@
     "coap-cli": "^0.5.1",
     "coap-packet": "^0.1.14",
     "request": "^2.87.0",
-    "supervisor": "^0.12.0"
+    "supervisor": "^0.12.0",
+    "web3": "^0.20.1"
   }
 }
