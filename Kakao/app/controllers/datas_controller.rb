@@ -2,7 +2,7 @@ class DatasController < ApplicationController
 	def keyboard
 		@msg = {
 			type: "buttons",
-			buttons: ["요청 로그 확인", "병헌", "정연", "태성"]
+			buttons: ["출입정보 열람"]
 		}
 		render json: @msg, status: :ok
 	end
@@ -10,99 +10,23 @@ class DatasController < ApplicationController
 	def chat
 		@res = params[:content]
 
-		if @res.eql?("요청 로그 확인") 
-			if File.exist?('/home/ec2-user/iot_coap/log.txt')
-				fd = File.new('/home/ec2-user/iot_coap/log.txt', 'r');
-				fs = fd.stat.size
-				content = fd.sysread(fs)
-			else
-				content = '작성된 로그가 없습니다.'
+		if @res.eql?("출입정보 열람") 
+			sql = "SELECT * FROM logs ORDER BY id desc LIMIT 5";
+			logs = Log.connection.exec_query(sql).rows;
+			content = "";
+			logs.each do |tuple|
+				content += "이름: #{tuple[1]}\n연락처: #{tuple[2]}\n주소: #{tuple[4]}\n출입시간: #{tuple[3]}\n";
 			end
 
 			content.chomp!
 
-			# @res = params[:content]
-			# @user_key = params[:user_key]
 			@msg = {
 				message: {
 					text: content
 				},
 				keyboard: {
 					type: "buttons",
-					buttons: ["요청 로그 확인", "병헌", "정연", "태성"]
-				}
-			}
-			render json: @msg, status: :ok
-
-		elsif @res.eql?("병헌")
-			if File.exist?('/home/ec2-user/iot_coap/byunghun.txt')
-				fd = File.new('/home/ec2-user/iot_coap/byunghun.txt', 'r');
-				fs = fd.stat.size
-				content = fd.sysread(fs)
-			else
-				content = '0'
-			end
-
-			content.chomp!
-
-			# @res = params[:content]
-			# @user_key = params[:user_key]
-			@msg = {
-				message: {
-					text: content
-				},
-				keyboard: {
-					type: "buttons",
-					buttons: ["요청 로그 확인", "병헌", "정연", "태성"]
-				}
-			}
-			render json: @msg, status: :ok
-
-		elsif @res.eql?("정연")
-			if File.exist?('/home/ec2-user/iot_coap/jungyeon.txt')
-				fd = File.new('/home/ec2-user/iot_coap/jungyeon.txt', 'r');
-				fs = fd.stat.size
-				content = fd.sysread(fs)
-			else
-				content = '0'
-			end
-
-			content.chomp!
-
-			# @res = params[:content]
-			# @user_key = params[:user_key]
-			@msg = {
-				message: {
-					text: content
-				},
-				keyboard: {
-					type: "buttons",
-					buttons: ["요청 로그 확인", "병헌", "정연", "태성"]
-				}
-			}
-			render json: @msg, status: :ok
-
-
-		elsif @res.eql?("태성")
-			if File.exist?('/home/ec2-user/iot_coap/taesung.txt')
-				fd = File.new('/home/ec2-user/iot_coap/taesung.txt', 'r');
-				fs = fd.stat.size
-				content = fd.sysread(fs)
-			else
-				content = '0'
-			end
-
-			content.chomp!
-
-			# @res = params[:content]
-			# @user_key = params[:user_key]
-			@msg = {
-				message: {
-					text: content
-				},
-				keyboard: {
-					type: "buttons",
-					buttons: ["요청 로그 확인", "병헌", "정연", "태성"]
+			buttons: ["출입정보 열람"]
 				}
 			}
 			render json: @msg, status: :ok
