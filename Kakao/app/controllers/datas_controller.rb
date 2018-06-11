@@ -10,12 +10,13 @@ class DatasController < ApplicationController
 	def chat
 		@res = params[:content]
 
-		if @res.eql?("출입정보 열람") 
-			sql = "SELECT * FROM logs ORDER BY id desc LIMIT 5";
+		if @res.eql?("출입정보 열람")
+			sql = "SELECT * FROM logs ORDER BY id desc LIMIT 20";
 			logs = Log.connection.exec_query(sql).rows;
 			content = "";
 			logs.each do |tuple|
-				content += "이름: #{tuple[1]}\n연락처: #{tuple[2]}\n주소: #{tuple[4]}\n출입시간: #{tuple[3]}\n";
+
+				content += "이름: #{tuple[1]}\n연락처: #{tuple[2]}\n주소: #{tuple[4]}\n출입시간: #{tuple[3]}\n\n";
 			end
 
 			content.chomp!
