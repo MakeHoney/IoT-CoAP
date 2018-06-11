@@ -14,12 +14,8 @@ static const uint8_t ipAddr_Server[] = {0xaa, 0xaa, 0x00, 0x00, 0x00, 0x00, 0x00
 
 cred_vars_t cred_vars;
 const uint8_t cred_path0[] = "red";
-const uint8_t bCntPrint[] = "권태성,김다운,원정연,이병헌|108동,2304호|";
+const uint8_t fingerPrintId[] = "1";
 
-
-owerror_t cred_receive(OpenQueueEntry_t* msg,
-	coap_header_iht* coap_header,
-	coap_option_iht* coap_options);
 void cred_sendDone(OpenQueueEntry_t* msg,
 	owerror_t error);
 
@@ -31,7 +27,7 @@ int lengthOfPrint(uint8_t* print) {
 
 
 void cb_btn() {
-	cred_push('1');
+	cred_push();
 }
 
 void cred_init() {
@@ -41,10 +37,8 @@ void cred_init() {
 	cred_vars.desc.path1len		= 0;
 	cred_vars.desc.path1val		= NULL;
 	cred_vars.desc.componentID	= COMPONENT_CRED;
-	cred_vars.desc.callbackRx	= &cred_receive;
 	cred_vars.desc.callbackSendDone = &cred_sendDone;
 
-	
 	// register with the CoAP module
 	opencoap_register(&cred_vars.desc);
 	btn_setCallbacks(cb_btn);
@@ -54,11 +48,11 @@ void cred_sendDone(OpenQueueEntry_t* msg, owerror_t error) {
 	openqueue_freePacketBuffer(msg);
 }
 
-void cred_push(uint8_t action) {
+void cred_push() {
 	OpenQueueEntry_t* pkt;
 	owerror_t outcome;
 	uint8_t numOptions;
-	
+
 	// don't run if not synch
 	if (ieee154e_isSynch() == FALSE) return;
 
@@ -90,17 +84,10 @@ void cred_push(uint8_t action) {
 
 	// CoAP payload
 	numOptions = 0;
-	if(action == '1') {
 
-		int len = lengthOfPrint(bCntPrint);
-		packetfunctions_reserveHeaderSize(pkt,len);
-		memcpy(pkt->payload, bCntPrint, len);
-	} else {
-		packetfunctions_reserveHeaderSize(pkt,3);
-		pkt->payload[0] = 'o';
-		pkt->payload[1] = 'f';
-		pkt->payload[2] = 'f';
-	}
+	int len = lengthOfPrint(fingerPrintId);
+	packetfunctions_reserveHeaderSize(pkt,len);
+	memcpy(pkt->payload, fingerPrintId, len);
 
 	// payload marker
 	packetfunctions_reserveHeaderSize(pkt,1);
